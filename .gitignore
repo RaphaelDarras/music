@@ -1,0 +1,5 @@
+useSpotify/credentials.json
+spotify-web-api-node
+web-api-auth-examples/
+node_modules/
+package-lock.json

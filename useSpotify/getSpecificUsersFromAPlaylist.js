@@ -23,7 +23,7 @@ spotifyApi
     })
     .then(playlist => getAllArtistsOnPlaylist(playlist.body))
     .then(artists => removeDoubleArtists(artists))
-    .then(noDoubleArtists => spotifyApi.getArtists(noDoubleArtists))
+    .then(noDoubleArtists => getArtists(noDoubleArtists))
     .then(artistsDetails => removeUnpopularArtists(artistsDetails))
     .then(artistsDetails => removeTooPopularArtists(artistsDetails))
     .then(popularArtists => removeArtistsWithTooFewFollowers(popularArtists))
@@ -36,6 +36,39 @@ spotifyApi
 // - Trouver toutes les playlists des artistes restants
 // - Garder que les playlist avec plus de Z followers
 // 
+
+function getArtists(artists){
+    const spotifyLimit = 50;
+    const promises = [];
+    const partitionnedArray = partition(artists, spotifyLimit);
+    for(let slice in partitionnedArray){
+        promises.push(spotifyApi.getArtists(slice));
+    }
+
+    return Promise.all(promises).then(values => values.flat());
+}
+
+// Détruit pas
+/**
+ * @return [[artists]]
+ */
+function splitarray(input, spacing){
+    var output = [];
+    for (var i = 0; i < input.length; i += spacing){
+        output[output.length] = input.slice(i, i + spacing);
+    }
+    return output;
+}
+
+// Détruit l'input
+/**
+ * @input - array - tableau d'artiste
+ * @input - n - limit
+ * @returns [[artists]]
+ */
+function partition(array, n) {
+    return array.length ? [array.splice(0, n)].concat(partition(array, n)) : [];
+}  
 
 
 function getOnePlaylistInfos(playlistID) {

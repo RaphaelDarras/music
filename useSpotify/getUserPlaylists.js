@@ -1,9 +1,9 @@
 'use strict';
 
 var SpotifyWebApi = require('spotify-web-api-node');
+var credentials = require('./credentials');
 
 const authorizationCode = credentials.authorizationCode;
-var credentials = require('./credentials');
 
 // credentials are optional
 var spotifyApi = new SpotifyWebApi({
@@ -12,17 +12,14 @@ var spotifyApi = new SpotifyWebApi({
   redirectUri: 'http://localhost:8888/callback'
 });
 
-var identifier = process.argv.slice(2);
+var userID = process.argv.slice(2);
 
 spotifyApi
     .clientCredentialsGrant(authorizationCode)
     .then(data => {    
         spotifyApi.setAccessToken(data.body['access_token']);
-        return getOneArtistsInfos(identifier);
+        return spotifyApi.getUserPlaylists(userID);
     })
-    .then(artistInfos => console.log(artistInfos.body.popularity))
-    .catch((err) => console.log(err));
-
-function getOneArtistsInfos(artist) {
-    return spotifyApi.getArtist(artist);
-}
+    .then(userPlaylists => console.log(userPlaylists))
+    .catch((err) => console.log(err))
+;
